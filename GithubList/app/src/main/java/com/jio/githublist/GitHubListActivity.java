@@ -2,6 +2,7 @@ package com.jio.githublist;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,10 +15,12 @@ import com.jio.githublist.adapters.GitUserListAdapter;
 import com.jio.githublist.databinding.ActivityGithubListBinding;
 import com.jio.githublist.models.GitUsers;
 import com.jio.githublist.models.GitUsersResponse;
+import com.jio.githublist.utils.PagnationScrollListener;
 import com.jio.githublist.utils.RecycleItemClicked;
 import com.jio.githublist.viewmodels.GItListViewModel;
 import com.jio.githublist.viewmodels.GitUsersUsagebacks;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GitHubListActivity extends BaseActivity implements RecycleItemClicked, GitUsersUsagebacks {
@@ -25,9 +28,14 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
     private Context context;
     GItListViewModel viewModel;
     ActivityGithubListBinding binding;
-    List<GitUsers> mDataset;
+    List<GitUsers> mDataset = new ArrayList<>();
     private GitUserListAdapter mAdapter;
-    int pageCount = 1;
+    int pageStart = 1;
+    int pageCurrent = pageStart;
+    int totalPages = 5;
+    boolean isLoading = false, isLastPage = false;
+    String query = "";
+    LinearLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +45,17 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
         binding = DataBindingUtil.setContentView(this, R.layout.activity_github_list);
         binding.setGitModel(viewModel);
         viewModel.setUsagebacks(this);
+        mLayoutManager = new LinearLayoutManager(this);
 
-        viewModel.requestGitUsers("nataraj", pageCount);
+        // viewModel.requestGitUsers("nataraj", pageCount);
         viewModel.getGitUsers().observe(this, new Observer<GitUsersResponse>() {
             @Override
             public void onChanged(GitUsersResponse usersResponse) {
-                mDataset = usersResponse.items;
+                if (pageCurrent == 1) {
+                    mDataset = (usersResponse.items);
+                } else {
+                    mDataset.addAll(usersResponse.items);
+                }
                 setmRecyclerView();
             }
         });
@@ -50,14 +63,43 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
         binding.searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String query = binding.searchText.getText().toString();
-                viewModel.requestGitUsers(query, pageCount = 1);
+                query = binding.searchText.getText().toString();
+                viewModel.requestGitUsers(query, pageCurrent = pageStart);
+            }
+        });
+
+        binding.usersList.addOnScrollListener(new PagnationScrollListener(mLayoutManager) {
+            @Override
+            protected void LoadMoreItems() {
+                isLoading = true;
+                pageCurrent += 1;
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewModel.requestGitUsers(query, pageCurrent);
+                    }
+                }, 1000);
+            }
+
+            @Override
+            public int getTotalPageCount() {
+                return totalPages;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
             }
         });
     }
 
     private void setmRecyclerView() {
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         int scrollPosition = 0;
         // If a layout manager has already been set, get current scroll position.
         if (binding.usersList.getLayoutManager() != null) {
@@ -83,6 +125,10 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
 
     @Override
     public void requestGitUsersSuccess(GitUsersResponse usersResponse) {
+        isLoading = false;
+        if (pageCurrent >= totalPages) {
+            isLastPage = true;
+        }
         Toast.makeText(context, usersResponse.total_count + "", Toast.LENGTH_LONG).show();
     }
 

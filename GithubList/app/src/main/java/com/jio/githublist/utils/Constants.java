@@ -1,13 +1,14 @@
 package com.jio.githublist.utils;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-import com.jio.githublist.BuildConfig;
 import com.jio.githublist.R;
 
 public class Constants {
@@ -28,12 +29,27 @@ public class Constants {
                 .into(view);
     }
 
-    public static void logPrint(String call, Object req, Object res) {
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
-            Gson g = new Gson();
-            Log.d("Request-", call + "");
-            Log.d("LogReq-", g.toJson(req));
-            Log.d("LogRes-", g.toJson(res));
+    public static boolean isConnection(Context context) {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (ni.isConnected())
+                    haveConnectedWifi = true;
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                if (ni.isConnected())
+                    haveConnectedMobile = true;
         }
+        return haveConnectedWifi || haveConnectedMobile;
+    }
+
+    public static void logPrint(String call, Object req, Object res) {
+        Gson g = new Gson();
+        Log.d("Request-", call + "");
+        Log.d("LogReq-", g.toJson(req));
+        Log.d("LogRes-", g.toJson(res));
     }
 }

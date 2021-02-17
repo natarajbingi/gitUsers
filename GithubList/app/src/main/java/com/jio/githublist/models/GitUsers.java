@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class GitUsers implements Parcelable {
+
     public String login;
     public int id;
     public String node_id;
