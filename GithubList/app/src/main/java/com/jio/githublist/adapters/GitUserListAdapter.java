@@ -19,7 +19,7 @@ import com.jio.githublist.utils.RecycleItemClicked;
 
 import java.util.List;
 
-public class GitUserListAdapter  extends RecyclerView.Adapter<GitUserListAdapter.ViewHolder> implements Filterable {
+public class GitUserListAdapter extends RecyclerView.Adapter<GitUserListAdapter.ViewHolder> implements Filterable {
     private static final String TAG = "CustomCustomersAdapter";
 
     Context context;
@@ -74,7 +74,6 @@ public class GitUserListAdapter  extends RecyclerView.Adapter<GitUserListAdapter
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        //  Log.d(TAG, "Element " + position + " set.");
         if (position % 2 == 1) {
             viewHolder.parent_tile_bg.setBackgroundColor(context.getResources().getColor(R.color.light_me));
         } else {
@@ -85,7 +84,7 @@ public class GitUserListAdapter  extends RecyclerView.Adapter<GitUserListAdapter
         viewHolder.textView.setText(mDataset.get(position).getLogin());
         viewHolder.text_sub.setText("URL: " + mDataset.get(position).getUrl());
         viewHolder.text_date.setText("Unique ID: " + mDataset.get(position).getId());
-        Constants.setGilde(context,mDataset.get(position).avatar_url, viewHolder.logo_id);
+        Constants.setGilde(context, mDataset.get(position).avatar_url, viewHolder.logo_id);
 
     }
 
@@ -98,6 +97,5 @@ public class GitUserListAdapter  extends RecyclerView.Adapter<GitUserListAdapter
     public void setClickListener(RecycleItemClicked companyClicked) {
         this.companyClicked = companyClicked;
     }
-
 
 }

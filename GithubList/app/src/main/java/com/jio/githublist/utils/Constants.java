@@ -15,6 +15,11 @@ public class Constants {
     public static final String BASE_URL = "https://api.github.com";
     public static final int NETWORK_TIMEOUT = 3000;
     public static final int PerPage = 10;
+    public static final int cacheSize = 5 * 1024 * 1024; // 5 MB size
+
+    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    public static final String HEADER_PRAGMA = "Pragma";
+
 
 
     public static void setGilde(Context context, String logoImagePath, ImageView view) {

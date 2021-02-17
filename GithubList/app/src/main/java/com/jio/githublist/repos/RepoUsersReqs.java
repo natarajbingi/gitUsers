@@ -13,7 +13,7 @@ public class RepoUsersReqs {
             pageNumber =1;
             mQuery = q;
         }
-        RestFullServices.getSearchUser(q, pageNumber, callBacks);
+       // RestFullServices.getSearchUser(q, pageNumber, callBacks);
     }
 
     public void requestGitUsersNextPage() {

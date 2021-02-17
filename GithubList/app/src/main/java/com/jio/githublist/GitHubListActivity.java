@@ -1,6 +1,8 @@
 package com.jio.githublist;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -26,16 +28,16 @@ import java.util.List;
 public class GitHubListActivity extends BaseActivity implements RecycleItemClicked, GitUsersUsagebacks {
 
     private Context context;
-    GItListViewModel viewModel;
-    ActivityGithubListBinding binding;
-    List<GitUsers> mDataset = new ArrayList<>();
+    private GItListViewModel viewModel;
+    private ActivityGithubListBinding binding;
+    private List<GitUsers> mDataset = new ArrayList<>();
     private GitUserListAdapter mAdapter;
-    int pageStart = 1;
-    int pageCurrent = pageStart;
-    int totalPages = 5;
-    boolean isLoading = false, isLastPage = false;
-    String query = "";
-    LinearLayoutManager mLayoutManager;
+    private final int pageStart = 1;
+    private int pageCurrent = pageStart;
+    private final int totalPages = 5;
+    private boolean isLoading = false, isLastPage = false;
+    private String query = "";
+    private LinearLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,13 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
             @Override
             public void onClick(View view) {
                 query = binding.searchText.getText().toString();
-                viewModel.requestGitUsers(query, pageCurrent = pageStart);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewModel.requestGitUsers(query, pageCurrent = pageStart);
+                    }
+                }, 1000);
             }
         });
 
@@ -121,6 +129,8 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
     @Override
     public void oncItemClicked(View view, int position) {
         Toast.makeText(context, "Selected " + mDataset.get(position).getLogin(), Toast.LENGTH_LONG).show();
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mDataset.get(position).getHtml_url()));
+        startActivity(browserIntent);
     }
 
     @Override
@@ -129,7 +139,7 @@ public class GitHubListActivity extends BaseActivity implements RecycleItemClick
         if (pageCurrent >= totalPages) {
             isLastPage = true;
         }
-        Toast.makeText(context, usersResponse.total_count + "", Toast.LENGTH_LONG).show();
+       // Toast.makeText(context, usersResponse.total_count + "", Toast.LENGTH_LONG).show();
     }
 
     @Override

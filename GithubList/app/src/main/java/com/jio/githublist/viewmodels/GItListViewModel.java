@@ -16,13 +16,11 @@ public class GItListViewModel extends AndroidViewModel implements GitUsersCallBa
 
     MutableLiveData<GitUsersResponse> mDataSet;
     GitUsersUsagebacks usagebacks;
-    Context context;
 
 
     public GItListViewModel(@NonNull Application application) {
         super(application);
         mDataSet = new MutableLiveData<>();
-        context = application.getApplicationContext();
     }
 
     public void setUsagebacks(GitUsersUsagebacks usagebacks) {
@@ -30,12 +28,12 @@ public class GItListViewModel extends AndroidViewModel implements GitUsersCallBa
     }
 
     public void requestGitUsers(String q, int page) {
-        usagebacks.showBar();
-        if (Constants.isConnection(context)) {
-            RestFullServices.getSearchUser(q, page, this);
-        } else {
-            usagebacks.onError("No Internet connection.");
-        }
+        //if (Constants.isConnection(getApplication())) {
+            usagebacks.showBar();
+            RestFullServices.getSearchUser(q, page, this, getApplication());
+       // } else {
+      //      usagebacks.onError("No Internet connection.");
+       // }
     }
 
     public LiveData<GitUsersResponse> getGitUsers() {
@@ -54,4 +52,5 @@ public class GItListViewModel extends AndroidViewModel implements GitUsersCallBa
         usagebacks.hideBar();
         usagebacks.onError(message);
     }
+
 }
